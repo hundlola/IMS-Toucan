@@ -25,3 +25,4 @@ old_nohup/
 phonemizer/
 *.pt
 Layers/lhotse/
+Preprocessing/sampa_backup/
