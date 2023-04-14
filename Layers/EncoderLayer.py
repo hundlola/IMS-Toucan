@@ -6,9 +6,12 @@
 
 import torch
 from torch import nn
-
+import os
+import numpy as np
 from Layers.LayerNorm import LayerNorm
-
+from Layers.Attention import MultiHeadedAttention
+import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 class EncoderLayer(nn.Module):
     """
@@ -138,7 +141,54 @@ class EncoderLayer(nn.Module):
         if cache is not None:
             x = torch.cat([cache, x], dim=1)
 
+
+#####################
+        # x_q = x.to(device='cuda:0')
+        # batch = x_q.shape[0] # save batch size as it is query
+        # residual = x
+        # self.accent_emb = []
+        # for embs in next(os.walk('/nas/projects/vokquant/IMS-Toucan_lang_emb_conformer/Preprocessing/embeds/'))[2]:
+        #     self.accent_emb.append(torch.load(os.path.join('/nas/projects/vokquant/IMS-Toucan_lang_emb_conformer/Preprocessing/embeds/', embs )))
+        # self.accent_emb = np.concatenate(self.accent_emb)       # created shape: (12, 1, 192)
+        # self.accent_emb = torch.Tensor(self.accent_emb).repeat(1,1,1,2)
+        # self.accent_emb = self.accent_emb.squeeze(0)
+        # x_acc_emb = self.accent_emb.permute(1, 0, 2).repeat(batch,1,1).to(device='cuda:0')
+        
+        # # check if x_acc_emb and x_q is in cpu or gpu
+        # #print("x_acc_emb.device: ", x_acc_emb.device, "x_q.device: ", x_q.device)
+        # #print("x_acc_emb.shape: ", x_acc_emb.shape, "x_q.shape: ", x_q.shape)
+        # #self.self_attn = MultiHeadedAttention(4, 384, 0.1).to(device='cuda:0') # produces dimension error
+        # multihead_attn = nn.MultiheadAttention(384, 16, 0.1, batch_first=True).to(device='cuda:0')
+        # attn_output, attn_weights = multihead_attn(x_q, x_acc_emb, x_acc_emb)
+        # print("attn_weights.shape: ", attn_weights.shape)
+        # # in inference
+        # # make all other speakers zeros
+        # #x_acc_emb[:,1:,:] = 0
+
+        # # visualize attn_weights in a plot
+        # # assuming attn_weights has shape (batch_size, query_length, key_length)
+        # attn_weights_0 = attn_weights[0].to(device='cpu')
+
+        # # apply softmax to get values between 0 and 1 that sum to 1
+        # attn_weights_softmax_0 = F.softmax(attn_weights_0, dim=1)
+        
+        # # plot the attention weights as a heatmap
+        # plt.imshow(attn_weights_softmax_0.detach().numpy(), cmap='hot', interpolation='nearest')
+        # plt.colorbar()
+        # plt.savefig('heatmap.png')
+
+        # #print("attn_output.shape: ", attn_output.shape, "attn_weights.shape: ", attn_weights.shape, "\n")
+        # x = residual + self.dropout(attn_output)
+        # x = self.norm_mha(x)
+        # # print("pos_emb.shape: ", pos_emb.shape)
+        # # print("mask.shape: ", mask.shape)
+        # # x = self.self_attn(x_q, x_acc_emb, x_acc_emb, pos_emb)
+
+        # # side info: it appears, that https://pytorch.org/docs/stable/_modules/torch/nn/modules/activation.html#MultiheadAttention.forward does a call to F.multi_head_attention_forward(... which in github shows as: https://github.com/pytorch/pytorch/blob/8372c5dc687d622c7d2e0d411f61cd2720fc1052/torch/nn/functional.py#L5029 see:
+        # # scale (optional float): Scaling factor applied prior to softmax. If None, the default value is set to :math:`\frac{1}{\sqrt{E}}`.
+        # # where E is the embedding dimension. So it should be the same as in the paper SPEAKER-AWARE SPEECH-TRANSFORMER (formula 7)
+
+#####################
         if pos_emb is not None:
             return (x, pos_emb), mask
-
         return x, mask

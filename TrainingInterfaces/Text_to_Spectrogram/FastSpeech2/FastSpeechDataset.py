@@ -31,7 +31,7 @@ class FastSpeechDataset(Dataset):
                  rebuild_cache=False,
                  ctc_selection=True,
                  save_imgs=False,
-                 use_avg_lang_emb=False):
+                 use_avg_lang_emb=True):
         self.cache_dir = cache_dir
         os.makedirs(cache_dir, exist_ok=True)
         if not os.path.exists(os.path.join(cache_dir, "fast_train_cache.pt")) or rebuild_cache:
@@ -140,11 +140,11 @@ class FastSpeechDataset(Dataset):
                     # if there is an audio without any voiced segments whatsoever we have to skip it.
                     continue
                 
-                embedder = LanguageEmbedding()
                 if use_avg_lang_emb:
-                    #loads the embedding from the folder of the audio with the name "{vd,at,goi,ivg}_emb.pt"
-                    language_embedding = torch.load(os.path.join('/data/vokquant/IMS-Toucan_lang_emb/Preprocessing/embeds',filepaths[index].split('/')[-1].split('_')[1] + '_emb_trained.pt' )).squeeze(0)
+                    #loads the embedding from the folder of the audio with the name "{vd,at,goi,ivg,...}_emb.pt"
+                    language_embedding = torch.load(os.path.join('./Preprocessing/embeds_mls_test',filepaths[index].split('/')[-1].split('_')[1] + '_emb_trained.pt' )).squeeze(0)
                 else:
+                    embedder = LanguageEmbedding()
                     language_embedding = embedder.get_language_embedding(input_waves=norm_wave.unsqueeze(0))
 
                 self.datapoints.append([dataset[index][0],

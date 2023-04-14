@@ -22,8 +22,10 @@ class InferenceFastSpeech2(torch.nn.Module):
         super().__init__()
         self.device = device
         self.text2phone = ArticulatoryCombinedTextFrontend(language=language, add_silence_to_end=True)
-        #checkpoint = torch.load(os.path.join("Models", f"FastSpeech2_{model_name}", "best.pt"), map_location='cpu')
-        checkpoint = torch.load(os.path.join("Models", "FastSpeech2_Austrian_From_Labels_avg_lang_emb_trained_with_WASS", "best.pt"), map_location='cpu')
+        checkpoint = torch.load(os.path.join("Models", f"FastSpeech2_{model_name}", "best.pt"), map_location='cpu')
+        #checkpoint = torch.load(os.path.join("Models", "FastSpeech2_Austrian_From_Labels_Miniset", "best.pt"), map_location='cpu')
+        print("using model: ",os.path.join("Models", model_name))
+
         
         self.use_lang_id = True
         try:
@@ -35,7 +37,7 @@ class InferenceFastSpeech2(torch.nn.Module):
             except RuntimeError:
                 self.phone2mel = FastSpeech2(weights=checkpoint["model"], lang_emb=None, utt_embed_dim=None).to(torch.device(device))  # single speaker
         #self.mel2wav = HiFiGANGenerator(path_to_weights=os.path.join("Models", "HiFiGAN_aridialect", "checkpoint_92426.pt")).to(torch.device(device))
-        self.mel2wav = HiFiGANGenerator(path_to_weights=os.path.join("Models", "HiFiGAN_aridialect", "best.pt")).to(torch.device(device))
+        self.mel2wav = HiFiGANGenerator(path_to_weights=os.path.join("./../IMS-Toucan_lang_emb/Models", "HiFiGAN_aridialect", "best.pt")).to(torch.device(device))
         if Avocodo:
             self.mel2wav = HiFiGANGeneratorAvocodo(path_to_weights=os.path.join("Models", "Avocodo", "best.pt")).to(torch.device(device))
         self.default_utterance_embedding = checkpoint["default_emb"].to(self.device)
@@ -59,14 +61,15 @@ class InferenceFastSpeech2(torch.nn.Module):
         if self.noise_reduce:
             self.update_noise_profile()
 
-    def set_language_embedding(self, path_to_reference_audio, use_avg=False):
-        emb = LanguageEmbedding()
+    def set_language_embedding(self, path_to_reference_audio, use_avg=True):
         # select between {at_emb, vd_emb, ivg_emb, goi_emb, interp_at_vd_emb, spanish_emb, fr_emb }
         if use_avg == True:
             self.default_lang_emb = torch.from_numpy(torch.load(path_to_reference_audio)).to(self.device) # reference audio is actually a .pt file, that is averaged
             print("default_lang_emb: " + str(path_to_reference_audio))
         else:
+            emb = LanguageEmbedding()
             self.default_lang_emb=emb.get_emb_from_path(path_to_wavfile=path_to_reference_audio).to(self.device)
+            print("default_lang_emb: " + str(path_to_reference_audio))
         
     def update_noise_profile(self):
         self.noise_reduce = False
@@ -113,7 +116,7 @@ class InferenceFastSpeech2(torch.nn.Module):
                                    lower values decrease variance of the energy curve.
         """
         print("phoneme input flag in forward: " + str(self.input_is_phones))
-        emb = LanguageEmbedding()
+        #emb = LanguageEmbedding()
 
         with torch.inference_mode():
             phones = self.text2phone.string_to_tensor(text, input_phonemes=self.input_is_phones, path_to_wavfile="/data/vokquant/data/aridialect/aridialect_wav16000/hpo_vd_wean_0002.wav").to(torch.device(self.device))

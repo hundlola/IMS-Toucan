@@ -24,21 +24,30 @@ def run(gpu_id, resume_checkpoint, finetune, model_dir, resume):
     torch.random.manual_seed(131714)
 
     print("Preparing")
+    miniset = False  # if True, only a small subset of the data is used for training
 
     if model_dir is not None:
         save_dir = model_dir
+    elif miniset == True:
+        save_dir = os.path.join("Models", "FastSpeech2_Austrian_From_Labels_Miniset")
     else:
         save_dir = os.path.join("Models", "FastSpeech2_Austrian_From_Labels")
     os.makedirs(save_dir, exist_ok=True)
 
     datasets = list()
-    datasets.append(prepare_fastspeech_corpus(transcript_dict=build_path_to_transcript_dict_aridialect_input_phonemes_miniset(),
-                                              corpus_dir=os.path.join("Corpora", "austrian_from_labels"),
-                                              lang="de",
-                                              phone_input=True))
+
+    if miniset == True:
+        datasets.append(prepare_fastspeech_corpus(transcript_dict=build_path_to_transcript_dict_aridialect_input_phonemes_miniset(),
+                                                corpus_dir=os.path.join("Corpora", "miniset_austrian_from_labels"),
+                                                lang="de",
+                                                phone_input=True))
+    else:
+        datasets.append(prepare_fastspeech_corpus(transcript_dict=build_path_to_transcript_dict_aridialect_input_phonemes(),
+                                                corpus_dir=os.path.join("Corpora", "austrian_from_labels"),
+                                                lang="de",
+                                                phone_input=True))
     train_set = ConcatDataset(datasets)
 
-    
     model = FastSpeech2(lang_embs=100)
     # because we want to finetune it, we treat it as multilingual, even though we are only interested in German here
 

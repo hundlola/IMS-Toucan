@@ -4,11 +4,14 @@ Taken from ESPNet
 
 import torch
 import torch.nn.functional as F
+from torch import nn
+import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 from Layers.Attention import RelPositionMultiHeadedAttention
 from Layers.Convolution import ConvolutionModule
-# from Layers.EncoderLayer import EncoderLayer
-from Layers.EncoderLayer_accent import EncoderLayer
+from Layers.EncoderLayer import EncoderLayer
 from Layers.LayerNorm import LayerNorm
 from Layers.MultiLayeredConv1d import MultiLayeredConv1d
 from Layers.MultiSequential import repeat
@@ -122,7 +125,7 @@ class Conformer(torch.nn.Module):
 
         xs = self.pos_enc(xs)
 
-        xs, masks = self.encoders(xs, masks)
+        xs, masks = self.encoders(xs, masks)    # return (x, pos_emb), mask
         if isinstance(xs, tuple):
             xs = xs[0]
 

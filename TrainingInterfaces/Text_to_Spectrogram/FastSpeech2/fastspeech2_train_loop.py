@@ -71,6 +71,7 @@ def plot_progress_spec(net, device, save_dir, step, lang, default_emb):
         phoneme_vector = tf.string_to_tensor(sentence, path_to_wavfile="/data/vokquant/data/aridialect/aridialect_wav16000/alf_at_berlin_001.wav").squeeze(0).to(device)
     else:
         phoneme_vector = tf.string_to_tensor(sentence).squeeze(0).to(device)
+    print("inference start:")
     emb = LanguageEmbedding()
     spec, durations, *_ = net.inference(text=phoneme_vector,
                                         return_duration_pitch_energy=True,
@@ -97,6 +98,7 @@ def plot_progress_spec(net, device, save_dir, step, lang, default_emb):
     plt.savefig(os.path.join(os.path.join(save_dir, "spec"), str(step) + ".png"))
     plt.clf()
     plt.close()
+    print("inference done")
 
 
 def collate_and_pad(batch):
@@ -193,6 +195,7 @@ def train_loop(net,
         train_losses_this_epoch = list()
         for batch in tqdm(train_loader):
             with autocast():
+                # print("text_lengths=batch[1]", str(batch[1])) prints the text lengths which is the dimension used for encoder (max value per bath is used, and most probably everything is zero padded)
                 train_loss = net(text_tensors=batch[0].to(device),
                                  text_lengths=batch[1].to(device),
                                  gold_speech=batch[2].to(device),

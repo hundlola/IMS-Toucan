@@ -40,7 +40,7 @@ def read_austrian_test_set(model_id, device="cpu", language="", speaker=None, in
             test_file = os.path.split(test_file_path)[1]
             with open(test_file_path, "r") as txt_filename:
                 sentence = txt_filename.read().replace('\n', '')
-                filename_out=os.path.join("audios","Avocodo_" + model_id, f"{test_file.replace('.lab', '.wav')}")
+                filename_out=os.path.join("audios", f"{test_file.replace('.lab', '.wav')}")
                 speaker = test_file.split("_")[0]
                 print(filename_out)
                 read_texts(model_id=model_id, sentence=sentence, filename=filename_out, device="cuda", language=language, speaker=speaker, input_is_phones=input_is_phones)
@@ -50,15 +50,16 @@ def read_austrian_test_set(model_id, device="cpu", language="", speaker=None, in
 # I have added a flag in the third line of this function named Avocodo.   #
 # It is meant to decide whether Avocodo or other train of HiFiGAN is used #
 ###########################################################################
-def read_texts(model_id, sentence, filename, speaker=None, device="cpu", language="", input_is_phones=None):
+def read_texts(model_id, sentence, filename, speaker=None, device="cuda:0", language="", input_is_phones=None):
     print("speaker in read texts is: ")
     print(str(speaker))
-    tts = InferenceFastSpeech2(device=device, model_name=model_id,language=language,Avocodo=True)
+    tts = InferenceFastSpeech2(device=device, model_name=model_id,language=language,Avocodo=False)
     tts.set_language(language)
     tts.set_phoneme_input(input_is_phones)
+    print("model_id is: " + model_id)
     # select between {at_emb_trained, vd_emb_trained, ivg_emb_trained, goi_emb_trained, interp_at_vd_emb, spanish_emb, fr_emb }
     #lang_emb_avg = '/data/vokquant/IMS-Toucan_lang_emb/Preprocessing/embeds_mls_test/embeddings_from_45_model/at_emb.pt' # specify average language_embedding file (*.pt)
-    lang_emb_avg = '/data/vokquant/IMS-Toucan_lang_emb/Preprocessing/embeds_mls_test/at_emb_trained.pt' # specify average language_embedding file (*.pt)
+    lang_emb_avg = '/data/vokquant/IMS-Toucan_lang_emb/Preprocessing/embeds_mls_test/vd_emb_trained.pt' # specify average language_embedding file (*.pt)
     #utt_emb = "/data/vokquant/data/aridialect/aridialect_wav16000/hga_vd_berlin_003.wav"
     if speaker == "spo":
         print("utterance embedding is set to spo_at_berlin_001:")
@@ -158,10 +159,12 @@ if __name__ == '__main__':
     #    print(speaker)
     #    read_goethe_at_lab(model_id="Austrian_From_Labels",speaker=speaker)
     #~nɑːxŋʔaxtsentnfiɐdlʔisɐʔeksɡɑːnŋɐhɛːnʔinʃbekdɐ~#
-    read_austrian_test_set(model_id="Austrian_From_Labels_avg_lang_emb_trained_with_WASS", device="cpu", language="de", speaker="hpo", input_is_phones=True)
+    
+    read_austrian_test_set(model_id="Austrian_From_Labels", device="cpu", language="de", speaker="hpo", input_is_phones=True)
+    read_texts(model_id="Austrian_From_Labels", sentence="Das ist ein sehr netter versuch, ich bin gespannt was rauskommt", filename="audios/Versuch.wav", device="cuda:0", language="de", speaker="hpo", input_is_phones=False)
+
     #read_austrian_test_set(model_id="Austrian_From_Labels", language="de", speaker="hpo")
     #read_austrian_test_set(model_id="Meta", language="de", speaker="hpo", input_is_phones=False)
-    #read_texts(model_id="Austrian_From_Labels", sentence="Viktor! Ich will nachhause.", filename="audios/will_nachhause.wav", device="cpu", language="at", speaker="hpo", input_is_phones=False)
     #read_texts(model_id="2Austrian_extended_phonemes", sentence="Hello everybody! This is the model speaking english with an english voice. I hope it works as it should.", filename="audios/english_multimodel_from_lab.wav", device="cpu", language="en")
     #read_texts(model_id="Austrian", sentence="Hallo, ich hoffe du, bist gut in deine Wohnung gekommen und hast heute einen interessanten Abend. Ich bin fertig für heute, oder was meinst du? Bis bald!", filename="audios/hallo_lia.wav", device="cpu", language="at")
     #read_texts(model_id="Austrian", sentence="Servus Freunde. Was sagts ihr zu meiner neuen Stimme?", filename="audios/servas.wav", device="cpu", language="at")
