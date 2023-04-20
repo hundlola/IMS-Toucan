@@ -112,7 +112,10 @@ class Conformer(torch.nn.Module):
 
         if self.embed is not None:
             xs = self.embed(xs)
-
+        
+        #print("setting lang_emb to None manually")
+        lang_embs = None
+        
         if lang_embs is not None:
             #print("torch.cat([lang_embs,lang_embs],dim=-1).unsqueeze(1): ")
             #print(torch.cat([lang_embs,lang_embs],dim=-1).unsqueeze(1))

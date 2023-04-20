@@ -161,7 +161,7 @@ if __name__ == '__main__':
     #~nɑːxŋʔaxtsentnfiɐdlʔisɐʔeksɡɑːnŋɐhɛːnʔinʃbekdɐ~#
     
     read_austrian_test_set(model_id="Austrian_From_Labels", device="cpu", language="de", speaker="hpo", input_is_phones=True)
-    read_texts(model_id="Austrian_From_Labels", sentence="Das ist ein sehr netter versuch, ich bin gespannt was rauskommt", filename="audios/Versuch.wav", device="cuda:0", language="de", speaker="hpo", input_is_phones=False)
+    #read_texts(model_id="Austrian_From_Labels", sentence="Das ist ein sehr netter versuch, ich bin gespannt was rauskommt", filename="audios/Versuch.wav", device="cuda:0", language="de", speaker="hpo", input_is_phones=False)
 
     #read_austrian_test_set(model_id="Austrian_From_Labels", language="de", speaker="hpo")
     #read_austrian_test_set(model_id="Meta", language="de", speaker="hpo", input_is_phones=False)
