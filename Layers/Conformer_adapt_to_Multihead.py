@@ -4,13 +4,10 @@ Taken from ESPNet
 
 import torch
 import torch.nn.functional as F
-from torch import nn
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 
 from Layers.Attention import RelPositionMultiHeadedAttention
 from Layers.Convolution import ConvolutionModule
+from Layers.Convolution_Multihead import ConvolutionModule_Multihead
 from Layers.EncoderLayer import EncoderLayer
 from Layers.LayerNorm import LayerNorm
 from Layers.MultiLayeredConv1d import MultiLayeredConv1d
@@ -86,7 +83,10 @@ class Conformer(torch.nn.Module):
         positionwise_layer_args = (attention_dim, linear_units, positionwise_conv_kernel_size, dropout_rate,)
 
         # convolution module definition
-        convolution_layer = ConvolutionModule
+        convolution_layer = ConvolutionModule_Multihead
+        self.conv_module = ConvolutionModule_Multihead(
+            d_model, cnn_module_kernel, use_batchnorm=use_conv_batchnorm
+        )
         convolution_layer_args = (attention_dim, cnn_module_kernel, activation)
 
         self.encoders = repeat(num_blocks, lambda lnum: EncoderLayer(attention_dim, encoder_selfattn_layer(*encoder_selfattn_layer_args),
@@ -112,10 +112,7 @@ class Conformer(torch.nn.Module):
 
         if self.embed is not None:
             xs = self.embed(xs)
-        
-        #print("setting lang_emb to None manually")
-        lang_embs = None
-        
+
         if lang_embs is not None:
             #print("torch.cat([lang_embs,lang_embs],dim=-1).unsqueeze(1): ")
             #print(torch.cat([lang_embs,lang_embs],dim=-1).unsqueeze(1))
@@ -128,7 +125,7 @@ class Conformer(torch.nn.Module):
 
         xs = self.pos_enc(xs)
 
-        xs, masks = self.encoders(xs, masks)    # return (x, pos_emb), mask
+        xs, masks = self.encoders(xs, masks)
         if isinstance(xs, tuple):
             xs = xs[0]
 
@@ -138,7 +135,6 @@ class Conformer(torch.nn.Module):
         if utterance_embedding is not None and self.connect_utt_emb_at_encoder_out:
             xs = self._integrate_with_utt_embed(xs, utterance_embedding)
 
-        print("xs.shape: ", xs.shape)
         return xs, masks
 
     def _integrate_with_utt_embed(self, hs, utt_embeddings):

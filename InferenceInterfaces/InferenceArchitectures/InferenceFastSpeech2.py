@@ -87,7 +87,8 @@ class FastSpeech2(torch.nn.Module, ABC):
         embed = torch.nn.Sequential(torch.nn.Linear(idim, 100),
                                     torch.nn.Tanh(),
                                     torch.nn.Linear(100, adim))
-        self.encoder = Conformer_accent_mha(idim=idim, attention_dim=adim, attention_heads=aheads, linear_units=eunits, num_blocks=elayers,
+        #self.encoder = Conformer_accent_mha(idim=idim, attention_dim=adim, attention_heads=aheads, linear_units=eunits, num_blocks=elayers,
+        self.encoder = Conformer(idim=idim, attention_dim=adim, attention_heads=aheads, linear_units=eunits, num_blocks=elayers,
                                  input_layer=embed, dropout_rate=transformer_enc_dropout_rate,
                                  positional_dropout_rate=transformer_enc_positional_dropout_rate, attention_dropout_rate=transformer_enc_attn_dropout_rate,
                                  normalize_before=encoder_normalize_before, concat_after=encoder_concat_after,
@@ -115,7 +116,8 @@ class FastSpeech2(torch.nn.Module, ABC):
                                                                 padding=(energy_embed_kernel_size - 1) // 2),
                                                 torch.nn.Dropout(energy_embed_dropout))
         self.length_regulator = LengthRegulator()
-        self.decoder = Conformer(idim=0,
+        #self.decoder = Conformer(idim=0,
+        self.decoder = Conformer_accent_mha(idim=0,
                                  attention_dim=adim,
                                  attention_heads=aheads,
                                  linear_units=dunits,

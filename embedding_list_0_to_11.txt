@@ -1,0 +1,12 @@
+0: Italian_emb_trained.pt
+1: Polish_emb_trained.pt
+2: English_emb_trained.pt
+3: ivg_emb_trained.pt
+4: Portuguese_emb_trained.pt
+5: Spanish_emb_trained.pt
+6: Dutch_emb_trained.pt
+7: German_emb_trained.pt
+8: goi_emb_trained.pt
+9: at_emb_trained.pt
+10: vd_emb_trained.pt
+11: French_emb_trained.pt

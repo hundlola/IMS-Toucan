@@ -22,7 +22,7 @@ class InferenceFastSpeech2(torch.nn.Module):
         super().__init__()
         self.device = device
         self.text2phone = ArticulatoryCombinedTextFrontend(language=language, add_silence_to_end=True)
-        checkpoint = torch.load(os.path.join("Models", f"FastSpeech2_{model_name}", "checkpoint_10675.pt"), map_location='cpu')
+        checkpoint = torch.load(os.path.join("Models", f"FastSpeech2_{model_name}", "best.pt"), map_location='cpu')
         #checkpoint = torch.load(os.path.join("Models", "FastSpeech2_Austrian_From_Labels_Miniset", "best.pt"), map_location='cpu')
         print("using model: ",os.path.join("Models", model_name))
 

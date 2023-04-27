@@ -101,8 +101,10 @@ def make_best_in_all(n=3):
             #    checkpoint_paths = get_n_recent_checkpoints_paths(checkpoint_dir="Models/{}".format(model_dir), n=n)
             #    averaged_model = average_checkpoints(checkpoint_paths, load_func=load_net_hifigan)
             #    save_model_for_use(model=averaged_model, name="Models/{}/best.pt".format(model_dir), dict_name="generator")
-            if "FastSpeech2_Austrian_From_Labels_avg_lang_emb_trained_with_WASS" in model_dir:
+            if "FastSpeech2_Austrian_From_Labels" in model_dir:
+                print(model_dir)
                 checkpoint_paths = get_n_recent_checkpoints_paths(checkpoint_dir="Models/{}".format(model_dir), n=n)
+                print(checkpoint_paths)
                 averaged_model, default_embed = average_checkpoints(checkpoint_paths, load_func=load_net_fast)
                 save_model_for_use(model=averaged_model, default_embed=default_embed, name="Models/{}/best.pt".format(model_dir))
 
